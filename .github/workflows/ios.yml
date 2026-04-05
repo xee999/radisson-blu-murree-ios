@@ -1,57 +1,28 @@
 name: Build iOS App
-
 on:
-  workflow_dispatch: # Allows manual trigger from GitHub UI
-  push:
-    branches: [ main ]
-
+  workflow_dispatch:
 jobs:
   build:
-    name: Build iOS IPA
     runs-on: macos-latest
     env:
-      # Opt-in to the latest Node version for actions
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '24' # VERY IMPORTANT: Must be 22 or 24
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Build Web App
-        run: npm run build
-
-      - name: Capacitor Sync
-        run: npx cap sync ios
-
-      - name: Build App in Xcode
+          node-version: '24'
+      - run: npm install
+      - run: npm run build
+      - run: npx cap sync ios
+      - name: Build Xcode
         run: |
-          xcodebuild -workspace ios/App/App.xcworkspace \
-                     -scheme App \
-                     -configuration Release \
-                     -sdk iphoneos \
-                     -derivedDataPath build \
-                     -allowProvisioningUpdates \
-                     CODE_SIGNING_ALLOWED=NO \
-                     CODE_SIGNING_REQUIRED=NO
-
-      - name: Create IPA (Unsigned)
+          xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath build -allowProvisioningUpdates CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+      - name: Create IPA
         run: |
           mkdir -p build/Payload
           cp -R build/Build/Products/Release-iphoneos/App.app build/Payload
           cd build && zip -r RadissonMurree.ipa Payload
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: Radisson-Murree-iOS-App
           path: build/RadissonMurree.ipa
-          retention-days: 7
