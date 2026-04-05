@@ -1,0 +1,5 @@
+{
+  "name": "Radisson Blu Murree - Activity Booking",
+  "description": "A luxury resort activity booking app featuring an AI Digital Concierge, unified itinerary, and adventure booking for Radisson Blu Murree.",
+  "requestFramePermissions": ["microphone"]
+}
